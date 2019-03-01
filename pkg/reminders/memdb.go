@@ -118,7 +118,6 @@ func (db *MemDB) Save(r Reminder) error {
 	} else {
 		r.ID = rem.ID
 		r.CreatedAt = rem.CreatedAt
-		r.DeletedAt = rem.DeletedAt
 		r.UpdatedAt = time.Now()
 	}
 

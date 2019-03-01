@@ -12,15 +12,29 @@ image:
 nameOverride: ""
 fullnameOverride: ""
 
+configmap:
+  - name: "DBTYPE"
+    value: "mysql"
+  - name: "VHOST"
+    value: "http://minikube.corp.local/go-reminders"
+  - name: "DBNAME"
+    value: "go-reminders"
+  - name: "HOST"
+    value: "go-reminders-mysql.go-reminders.svc.cluster.local"
+  - name: "PORT"
+    value: "3306"
+  - name: "USER"
+    value: "vmware"
+
+secretsmap:
+  - name: "PASSWD"
+    # base64 of 'VMware1!'
+    value: "Vk13YXJlMSE="
+
 container:
   port:
     containerPort: 8080
     name: go-reminders
-  env:
-    - name: DBTYPE
-      value: mem
-    - name: VHOST
-      value: "http://minikube.corp.local/go-reminders"
   livenessProbe:
     path: /stats/hits
   readinessProbe:

@@ -1,34 +1,44 @@
-#
-# Copyright 2015-2019 VMware, Inc. All Rights Reserved.
-# Author: Tom Hite (thite@vmware.com)
-#
-# SPDX-License-Identifier: https://spdx.org/licenses/MIT.html
-#
-
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: go-reminders
   labels:
-    app: go-reminders
+    app.kubernetes.io/name: go-reminders
+    app.kubernetes.io/instance: go-reminders
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      app: go-reminders
+      app.kubernetes.io/name: go-reminders
+      app.kubernetes.io/instance: go-reminders
   template:
     metadata:
       labels:
-        app: go-reminders
+        app.kubernetes.io/name: go-reminders
+        app.kubernetes.io/instance: go-reminders
     spec:
       containers:
         - name: go-reminders
-          image: {{docker-registry-repo}}
-          command:
-            - "/go-reminders"
-            - "-dbtype=mem"
+          image: "tdhite/go-reminders:latest"
+          imagePullPolicy: IfNotPresent
+          envFrom:
+          - secretRef:
+              name: go-reminders-secretsmap
+          - configMapRef:
+              name: go-reminders-configmap 
           ports:
-            - containerPort: 8080
-              name: go-reminders
-              protocol: TCP
+          - name: go-reminders
+            containerPort: 8080
+            protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /stats/hits
+              port: go-reminders
+          readinessProbe:
+            httpGet:
+              path: /stats/hits
+              port: go-reminders
+          resources:
+            {}
       imagePullSecrets:
         - name: go-reminders-registry-creds

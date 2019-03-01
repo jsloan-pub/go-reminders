@@ -14,28 +14,43 @@ microservice:
 1. A kubernetes cluster sufficient to run go-reminders and its backing services (e.g., mysql);
 2. A Docker registry and relevant credentials for pushing and pulling containers;
 3. A backing service (generally mysql) running in the kubernetes cluster;
-4. A Pivotal Concourse setup in order to run the build and deploy processes;
+4. A [Concourse setup](deployments/concourse) in order to run the build and deploy processes;
 5. [Helm](https://helm.sh) for managing go-reminders deployments, also used by the ci/cd pipelines.
 
 #### Kubernetes Cluster
 Running go-reminders generally targets a kubenernetes cluster. It runs in the
-default namespace.
+default namespace unless you specify another, e.g.:
+
+    helm install --namespace=go-reminders ...
+
+when deploying it. If so, it will be good also to keep any backing stores
+(e.g., mysql) in the same namespace.
 
 In addition, as with any kubernetes cluster, credentials should be setup.
 Secrets for pushing and pulling containers from the Docker registry must exist
 before building the microservice. The way to add such credentials is as
 follows:
 
-```kubectl create secret docker-registry go-reminders-registry-creds --docker-server=<your-registry-server> --docker-username=<your-name> --docker-password=<your-pword> --docker-email=<your-email>```
+    kubectl create secret docker-registry go-reminders-registry-creds --docker-server=<your-registry-server> --docker-username=<your-name> --docker-password=<your-pword> --docker-email=<your-email
+
+For example, to use the public [Docker Hub](https://hub.docker.com/), you
+would run something like:
+
+    kubectl create secret docker-registry go-reminders-registry-creds --docker-server=https://index.docker.io/v1 --docker-username=mydockeruser --docker-password=mypassword --docker-email='myuser@somedomain.com'
 
 As well, in one form or another, credentials for go-reminders to make use of a
 backing store like MySQL is required. Those can be obtained in various ways,
 such as described [below](#obtaining-backing-storage-secrets). Another way is
-to use the [concourse credential
+to use the [Concourse credential
 management](https://concourse-ci.org/creds.html) facility if you want a more
 secure model. To do so, integrate your service of choice and set the
 environment variables or command line switches in the kubernetes deployment
 for running go-reminders.
+
+Note that if you install Concourse via the [Conourse Helm
+Chart](deployments/concourse), it will support credentials via standard
+[kubernetes
+secrets](https://github.com/helm/charts/tree/master/stable/concourse#kubernetes-secrets).
 
 #### Backing Service
 The microservice needs a backing service in which to store the reminders.
@@ -45,6 +60,15 @@ MySQL or internal facilities are common scenarios.
 A working MySQL server can be used for the backing service. The microservice
 requires rights to create and drop databases, as well as normal CRUD on
 tables.
+
+To start a mysql server in kubernetes, you can use the sample deployment
+[values.yml](deployments/mysql/values.yml) for helm by doing the following:
+
+    cd .../deployments/mysql
+    helm install --namespace=go-reminders -n go-remiders-mysql -f value.yml stable/mysql
+
+This is, in fact, the expected setup when using the [Concourse
+pipelines](build/ci/concourse).
 
 ##### MemDB Backing Service
 A memory only backing can be used for testing or demonstrative purposes. The
@@ -106,16 +130,18 @@ you must provide a container name for pushing to a registry.
 
 That will build and push the container assuming you have already logged
 in to your registry with "docker login". If you are using
-[concourse](https://concourse-ci.org) to perform your builds, you can issue
+[Concourse](https://concourse-ci.org) to perform your builds, you can issue
 the makefile as follows to preclude pushing the docker container, instead
-using the concourse resource to perform that task:
+using the Concourse resource to perform that task:
 
     export CONTAINER=myreponame/go-reminders 
     make cmd/go-reminders/go-reminders
 
-The output of the concourse task would be the go-reminders executable.
+The output of the Concourse task would be the go-reminders executable.
 
-To build for mac use the following.  Examples elsewhere in this document should switch to referencing `go-reminders-darwin` instead of `go-reminders`
+To build for mac use the following (and other example commands in this this
+document should be read as using `go-reminders-darwin` instead of `go-reminders`
+for the executable name
 
     make cmd/go-reminders/go-reminders-darwin
 
@@ -125,10 +151,16 @@ can be used assuming the appropriate tool (i.e., Jenkins, Concourse or the
 like) is in place. Some alteration to the configuration may be necessary
 depending on your setup.
 
+If you do not already have a Concourse engine setup, you can start one for use
+with go-reminders as described in
+[deployments/concourse](deployments/concourse).
+
 ##### Notes on Using Concourse
 A set of pipelines and sample parameter files are provided in the
 [build/ci/concourse](build/ci/concourse) directory. There is also a README
-therein to explain using Concourse with this project.
+therein to explain using Concourse with this project. The README also explains
+how to run Concourse locally with the instructions in
+[deployments/concourse](deployments/concourse].
 
 ##### Notes on Using Jenkins
 A set of config.xml files for jobs and the Gerrit trigger plugin exist
@@ -166,6 +198,10 @@ environment variables or command line switches:
 To get help on the available options, execute it as follows:
 
     cmd/go-reminders/go-reminders --help
+or
+    cmd/go-reminders/go-reminders-darwin --help
+
+and the options will be displayed.
 
 ##### In a Container
 Once pushed to Docker, you can run the microservice similarly to:
@@ -190,21 +226,24 @@ for example:
           value: "rootpasswd"
     ...
 
-###### Sample Kubernetes Deployment Using kubectl
+###### Kubernetes Deployment Using kubectl
 Sample deployment and service manifests are provided in the
 [kubernetes](deployments/kubernetes) directory.  Run those similarly to the
 following:
 
+    kubectl create -f configmap.yml
+    kubectl create -f secretsmap.yml
     kubectl create -f deployment.yml
     kubectl create -f service.yml
+    kubectl create -f ingress.yml
 
-###### Sample Kubernetes Deployment Using Helm
+###### Kubernetes Deployment Using Helm
 The facility generally used to deploy and manage go-reminders is
-[Helm](https://helm.sh). If you are using the concourse pipelines to build and
+[Helm](https://helm.sh). If you are using the Concourse pipelines to build and
 deploy, helm will be used automatically.
 
 If you want to deploy manually using helm, switch to the
-[deployments/helm](deployment/helm] directory. There you will find the key
+[deployments/helm](deployment/helm) directory. There you will find the key
 files to fill out -- either of values-minikube.yml or values-pks.yml. Copy one
 of those files values.yml
 
@@ -217,7 +256,7 @@ forced (i.e., git will not track values.yml).
 To deploy using helm, issue a command such as:
 
     cd .../deployments/helm
-    helm install --name go-reminders .
+    helm install --name go-reminders -f values.yml .
 
 and that should create the deployment, which you can check with
 

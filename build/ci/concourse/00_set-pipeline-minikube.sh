@@ -9,8 +9,21 @@
 PARAMS="params.yml"
 PIPELINE="pipeline-minikube.yml"
 
-fly -t k8s-cluster set-pipeline --pipeline=go-reminders --load-vars-from="${PARAMS}" --config="${PIPELINE}"
+fly -t go-reminders set-pipeline --pipeline=go-reminders --load-vars-from="${PARAMS}" --config="${PIPELINE}"
+
+if [ $? -ne 0 ]; then
+    cat <<-EOF
+    
+		If things fail -- check that you have executed someting of the form:
+
+		fly -t go-reminders-main set-team --team-name=go-reminders --local-user=vmware
+
+		Check for other errors further above.
+
+	EOF
+fi
+
 
 #if [ $? -eq 0 ]; then
-#	fly -t k8s-cluster unpause-pipeline --pipeline go-reminders
+#	fly -t go-reminders unpause-pipeline --pipeline go-reminders
 #fi

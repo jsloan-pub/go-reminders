@@ -1,0 +1,24 @@
+concourse:
+  web:
+    externalUrl: http://minikube.corp.local
+    kubernetes:
+      teams:
+        - main
+        - go-reminders
+      keepNamespaces: false
+    auth:
+      mainTeam:
+        localUser: "vmware"
+  worker:
+    baggageclaim:
+      driver: overlay
+web:
+  ingress:
+    enabled: true
+    annotations:
+        - kubernetes.io/ingress.class: nginx
+        - kubernetes.io/tls-acme: 'false'
+    hosts:
+        - minikube.corp.local
+secrets:
+  localUsers: "vmware:VMware1!"

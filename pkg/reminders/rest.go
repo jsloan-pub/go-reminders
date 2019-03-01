@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/ant0ine/go-json-rest/rest"
 )
@@ -79,6 +80,8 @@ func (rem *Reminders) Post(w rest.ResponseWriter, r *rest.Request) {
 			return
 		} else {
 			reminder.GUID = u.String()
+			reminder.CreatedAt = time.Now()
+			reminder.UpdatedAt = reminder.CreatedAt
 		}
 	}
 
@@ -98,6 +101,7 @@ func (rem *Reminders) update(reminder Reminder, w rest.ResponseWriter, r *rest.R
 	}
 
 	reminder.Message = updated.Message
+	reminder.UpdatedAt = time.Now()
 
 	err := rem.s.Save(reminder)
 	if err != nil {

@@ -108,7 +108,7 @@ jobs:
         file: git-reminders-repo/build/ci/concourse/tasks/kubernetes-deploy.yml
         params:
           cluster_url: ((k8s-cluster-url))
-          namespace: default
+          namespace: ((go-reminders-namespace))
           resource_type: deployment
           resource_name: go-reminders
           container: ((docker-registry-repo))

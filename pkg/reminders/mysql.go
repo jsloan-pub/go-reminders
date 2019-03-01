@@ -198,6 +198,6 @@ func (db *MySQLDB) GetGUID(guid string) (Reminder, error) {
 
 // Save stores the given reminder in the database.
 func (db *MySQLDB) Save(r Reminder) error {
-	err := db.db.Save(r).Error
+	err := db.db.Save(&r).Error
 	return err
 }

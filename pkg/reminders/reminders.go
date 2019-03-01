@@ -25,7 +25,6 @@ type Reminder struct {
 	Message   string    `json:"message"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
-	DeletedAt time.Time `json:"-"`
 }
 
 // Reminders holds the Storage and Stats structs.

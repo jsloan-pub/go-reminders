@@ -1,0 +1,4 @@
+mysqlRootPassword: "VMware1!"
+mysqlUser: "vmware"
+mysqlPassword: "VMware1!"
+mysqlDatabase: "go-reminders"

@@ -1,0 +1,255 @@
+[debug] Created tunnel using local port: '50389'
+
+[debug] SERVER: "127.0.0.1:50389"
+
+[debug] Original chart version: ""
+[debug] CHART PATH: /Users/thite/workspace/go-reminders/deployments/helm
+
+NAME:   go-reminders
+REVISION: 1
+RELEASED: Fri Mar  1 18:01:24 2019
+CHART: go-reminders-0.1.0
+USER-SUPPLIED VALUES:
+affinity: {}
+configmap:
+- name: DBTYPE
+  value: mysql
+- name: VHOST
+  value: http://minikube.corp.local/go-reminders
+- name: DBNAME
+  value: go-reminder
+- name: HOST
+  vlaue: go-reminders-mysql.go-reminders.svc.cluster.local
+- name: PORT
+  value: "3306"
+- name: USER
+  value: vmware
+container:
+  livenessProbe:
+    path: /stats/hits
+  port:
+    containerPort: 8080
+    name: go-reminders
+  readinessProbe:
+    path: /stats/hits
+fullnameOverride: ""
+image:
+  pullPolicy: IfNotPresent
+  repository: tdhite/go-reminders
+  tag: latest
+ingress:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  enabled: true
+  hosts:
+  - minikube.corp.local
+  paths:
+    path: /go-reminders
+  tls: []
+nameOverride: ""
+nodeSelector: {}
+replicaCount: 1
+resources: {}
+secretsmap:
+- name: PASSWD
+  value: Vk13YXJlMSEK
+service:
+  port: 8080
+  type: ClusterIP
+tolerations: []
+
+COMPUTED VALUES:
+affinity: {}
+configmap:
+- name: DBTYPE
+  value: mysql
+- name: VHOST
+  value: http://minikube.corp.local/go-reminders
+- name: DBNAME
+  value: go-reminder
+- name: HOST
+  vlaue: go-reminders-mysql.go-reminders.svc.cluster.local
+- name: PORT
+  value: "3306"
+- name: USER
+  value: vmware
+container:
+  livenessProbe:
+    path: /stats/hits
+  port:
+    containerPort: 8080
+    name: go-reminders
+  readinessProbe:
+    path: /stats/hits
+fullnameOverride: ""
+image:
+  pullPolicy: IfNotPresent
+  repository: tdhite/go-reminders
+  tag: latest
+ingress:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  enabled: true
+  hosts:
+  - minikube.corp.local
+  paths:
+    path: /go-reminders
+  tls: []
+nameOverride: ""
+nodeSelector: {}
+replicaCount: 1
+resources: {}
+secretsmap:
+- name: PASSWD
+  value: Vk13YXJlMSEK
+service:
+  port: 8080
+  type: ClusterIP
+tolerations: []
+
+HOOKS:
+---
+# go-reminders-test-connection
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "go-reminders-test-connection"
+  labels:
+    app.kubernetes.io/name: go-reminders
+    helm.sh/chart: go-reminders-0.1.0
+    app.kubernetes.io/instance: go-reminders
+    app.kubernetes.io/managed-by: Tiller
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args:  ['go-reminders:8080']
+  restartPolicy: Never
+MANIFEST:
+
+---
+# Source: go-reminders/templates/secretsmap.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: go-reminders-secretsmap
+data:
+  PASSWD: "Vk13YXJlMSEK"
+---
+# Source: go-reminders/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: go-reminders-configmap
+data:
+  DBTYPE: "mysql"
+  VHOST: "http://minikube.corp.local/go-reminders"
+  DBNAME: "go-reminder"
+  HOST: ""
+  PORT: "3306"
+  USER: "vmware"
+---
+# Source: go-reminders/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-reminders
+  labels:
+    app.kubernetes.io/name: go-reminders
+    helm.sh/chart: go-reminders-0.1.0
+    app.kubernetes.io/instance: go-reminders
+    app.kubernetes.io/managed-by: Tiller
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: go-reminders
+      protocol: TCP
+      name: go-reminders
+  selector:
+    app.kubernetes.io/name: go-reminders
+    app.kubernetes.io/instance: go-reminders
+---
+# Source: go-reminders/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-reminders
+  labels:
+    app.kubernetes.io/name: go-reminders
+    helm.sh/chart: go-reminders-0.1.0
+    app.kubernetes.io/instance: go-reminders
+    app.kubernetes.io/managed-by: Tiller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: go-reminders
+      app.kubernetes.io/instance: go-reminders
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: go-reminders
+        app.kubernetes.io/instance: go-reminders
+    spec:
+      containers:
+        - name: go-reminders
+          image: "tdhite/go-reminders:latest"
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - secretRef:
+              name: go-reminders-secretsmap
+            - configMapRef:
+              name: go-reminders-configmap 
+          ports:
+            - name: go-reminders
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /stats/hits
+              port: go-reminders
+          readinessProbe:
+            httpGet:
+              path: /stats/hits
+              port: go-reminders
+          resources:
+            {}
+            
+      imagePullSecrets:
+        - name: go-reminders-registry-creds
+---
+# Source: go-reminders/templates/ingress.yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: go-reminders
+  labels:
+    app.kubernetes.io/name: go-reminders
+    helm.sh/chart: go-reminders-0.1.0
+    app.kubernetes.io/instance: go-reminders
+    app.kubernetes.io/managed-by: Tiller
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    
+spec:
+  rules:
+    - host: "minikube.corp.local"
+      http:
+        paths:
+          - path: /go-reminders
+            backend:
+              serviceName: go-reminders
+              servicePort: go-reminders

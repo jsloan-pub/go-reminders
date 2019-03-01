@@ -7,16 +7,36 @@
 #
 
 docker-registry-repo: "mydockerrepo/go-reminders"
-docker-registry-email: "myemail@someserver.com"
 docker-registry-user: "mydockerhubuser"
 docker-registry-passwd: "mydockerhubpassword"
+docker-registry-email: "myemail@someserver.com"
 semver-git-repo: "git@github.com:mygithubid/semvers"
 semver-git-repo-branch: master
 semver-file: "go-reminders"
-go-reminders-git-repo: "git@github.com/mygithubid/go-reminders"
+go-remindes-namespace: go-reminders
+go-reminders-git-repo: "git@github.com:mygithubid/go-reminders"
 go-reminders-git-repo-branch: "master"
+helm_ver: "v2.12.3"
 
 private-git-repo-key: |
   -----BEGIN RSA PRIVATE KEY-----
   all your private kee data here
   -----END RSA PRIVATE KEY-----
+
+#
+# Uncomment the remainder and fill out. Optionally use a the
+# append-creds-to-params.sh script to pull credentials, to the extent it can
+# do so successfully, from ~/.kube/config. Note all should be base64 encoded,
+# except possibly k8s-admin-token, which the script does automatically if
+# appropriate..
+
+#k8s-cluster-url: https://minikube.corp.local:8443
+#k8s-cluster-ca: 
+#k8s-admin-cert: 
+#k8s-admin-key: 
+
+# This can be either a valid token or the term "MINIKUBE".
+# If minikube, the pipeline tasks will presume the intent is to use the above
+# certs. If a valid token is used, the certts are ignored and only token auth is
+# used for kubernetes operations within pipeline tasks.
+#k8s-admin-token: MINIKUBE

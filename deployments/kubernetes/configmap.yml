@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: go-reminders-configmap
+data:
+  DBTYPE: "mysql"
+  VHOST: "http://minikube.corp.local/go-reminders"
+  DBNAME: "go-reminder"
+  HOST: ""
+  PORT: "3306"
+  USER: "vmware"

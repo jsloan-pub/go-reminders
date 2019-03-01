@@ -4,6 +4,7 @@
 In order to use these pipelines, you must have:
 
 - a running [Concourse](https://concourse-ci.org) setup
+- a team setup in concourse for go-reminders, e.g.: ```fly -t -main set-team --team-name=go-reminders --local-user=vmware```
 - a kubernetes cluster with relevant credentials (k8s secrets) setup
 - a git repo and the related SSH key for housing a file for [semantic version management](https://concoursetutorial.com/miscellaneous/versions-and-buildnumbers/#semver-semantic-versioning)
 - a valid git repo for the go-reminders project (e.g., a github fork or similar) and related private SSH key.
@@ -18,6 +19,10 @@ create/update the pipeline in concourse.
 ### Minikube
 Start a minikube cluster that has access to a concourse CI engine. A sample
 script for this exists in [scripts/minikube.sh](../../../scripts/minikube.sh).
+
+### Installing Concourse into Minikube
+If you do not yet have a concourse installation, you can install it into
+your minikube cluster [as described here](../../../deployments/concourse).
 
 ### Credential Pipeline Variables
 

@@ -1,15 +1,11 @@
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: go-reminders
+ingress:
   annotations:
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "false"
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
-spec:
-  rules:
-  - http:
-      paths:
-      - path: /go-reminders
-        backend:
-          serviceName: go-reminders
-          servicePort: 8080
+  enabled: true
+  hosts:
+  - minikube.corp.local
+  paths:
+    path: /go-reminders

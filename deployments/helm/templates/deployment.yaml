@@ -23,6 +23,11 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            - secretRef:
+                name: {{ .Release.Name }}-secretsmap
+            - configMapRef:
+                name: {{ .Release.Name }}-configmap 
           ports:
             - name: {{ .Values.container.port.name }}
               containerPort: {{ .Values.container.port.containerPort }}
@@ -37,18 +42,12 @@ spec:
               port: go-reminders
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          env:
-            {{- range $item := $.Values.container.env }}
-            - name: {{ $item.name }}
-              value: {{ $item.value }}
-            {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       imagePullSecrets:
         - name: go-reminders-registry-creds
-
     {{- with .Values.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
